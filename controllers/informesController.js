@@ -3,7 +3,7 @@ const service = require("../services/informesService.js");
 
 const getClientesConReservasPorEstado = async (req, res) => {
   try {
-    const filtros = req.body;
+    const filtros = req.query;
     const resultado = await service.obtenerClientesConReservasPorEstado(filtros);
     res.status(200).json(resultado);
   } catch (error) {

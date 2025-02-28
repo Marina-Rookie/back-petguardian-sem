@@ -74,7 +74,6 @@ const getReseniasPorUsuario = async (req, res) => {
         const resenias = reservas
             .map(reserva => reserva.resenia)
             .filter(resenia => resenia !== undefined);
-        console.log(resenias);
         if (resenias.length === 0) {
             return res.status(404).json({ message:  'No se encontraron reseñas para este Cuidador.' });
         }

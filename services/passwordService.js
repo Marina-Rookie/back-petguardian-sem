@@ -6,7 +6,6 @@ const encriptPassword = async (password) => {
 }
 
 const decryptPassword = async (password, passwordUser) => {
-    console.log(password);
     return await bcrypt.compare(password, passwordUser);
 }
 

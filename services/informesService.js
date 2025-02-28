@@ -98,10 +98,10 @@ const obtenerClientesConReservasPorEstado = async (filtros) => {
       {
         $match: {
           ...(reservasMin !== undefined && {
-            reservasTotales: { $gte: reservasMin },
+            reservasTotales: { $gte: Number(reservasMin) },
           }),
           ...(reservasMax !== undefined && {
-            reservasTotales: { $lte: reservasMax },
+            reservasTotales: { $lte: Number(reservasMax) },
           }),
         },
       },
