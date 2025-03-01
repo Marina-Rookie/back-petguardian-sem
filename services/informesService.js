@@ -97,12 +97,27 @@ const obtenerClientesConReservasPorEstado = async (filtros) => {
       },
       {
         $match: {
-          ...(reservasMin !== undefined && {
-            reservasTotales: { $gte: Number(reservasMin) },
-          }),
-          ...(reservasMax !== undefined && {
-            reservasTotales: { $lte: Number(reservasMax) },
-          }),
+          ...(reservasMin === undefined &&
+            reservasMin !== undefined && { reservasTotales: { $eq: 0 } }),
+          ...(reservasMin !== undefined &&
+            reservasMax !== undefined &&
+            reservasMin !== 0 &&
+            reservasMax !== 0 && {
+              reservasTotales: {
+                $gte: Number(reservasMin),
+                $lte: Number(reservasMax),
+              },
+            }),
+          ...(reservasMin !== undefined &&
+            reservasMax === undefined &&
+            reservasMin !== 0 && {
+              reservasTotales: { $gte: Number(reservasMin) },
+            }),
+          ...(reservasMin === undefined &&
+            reservasMax !== undefined &&
+            reservasMax !== 0 && {
+              reservasTotales: { $lte: Number(reservasMax) },
+            }),
         },
       },
       {
