@@ -24,7 +24,7 @@ const getCuidadoresConReservasPorEstado = async (req, res) => {
 
 const getReservas = async (req, res) => {
   try {
-    const filtros = req.body;
+    const filtros = req.query;
     const reservas = await service.getReservas(filtros);
     res.status(200).json(reservas);
   } catch (error) {

@@ -1,4 +1,3 @@
-
 const Usuario = require("../models/Usuario.js");
 const Resenia = require("../models/Resenia.js");
 const moment = require("moment-timezone");
@@ -8,7 +7,7 @@ const Estado = require("../models/Estado.js");
 const obtenerClientesConReservasPorEstado = async (filtros) => {
   try {
     const { nombre, apellido, email, reservasMin, reservasMax } = filtros;
-
+console.log(filtros);
     const matchStage = { rol: "Cliente" };
 
     if (nombre) matchStage.nombre = { $regex: nombre, $options: "i" };
@@ -234,7 +233,6 @@ const obtenerClientesConReservasPorEstado = async (filtros) => {
         clientes51a100: clientes51a100[0] ? clientes51a100[0].count : 0,
       },
     };
-
   } catch (error) {
     throw new Error(error.message);
   }
@@ -244,16 +242,19 @@ const obtenerCuidadoresConReservasPorEstado = async (filtros) => {
     const { nombre, apellido, email, estado } = filtros;
 
     const matchStage = {
-      rol:{ $in: [
-        "Cuidador Habilitado" ,
-        "Cuidador No Habilitado" ,
-        "Cuidador Pendiente"
-  ]}};
+      rol: {
+        $in: [
+          "Cuidador Habilitado",
+          "Cuidador No Habilitado",
+          "Cuidador Pendiente",
+        ],
+      },
+    };
 
     if (nombre) matchStage.nombre = { $regex: nombre, $options: "i" };
     if (apellido) matchStage.apellido = { $regex: apellido, $options: "i" };
     if (email) matchStage.email = { $regex: email, $options: "i" };
-  
+
     const cuidadores = await Usuario.aggregate([
       { $match: matchStage },
       {
@@ -353,9 +354,7 @@ const obtenerCuidadoresConReservasPorEstado = async (filtros) => {
           },
         },
       },
-  ...(estado
-  ? [{ $match: { estado: {$eq: estado} } }]
-  : []),
+      ...(estado ? [{ $match: { estado: { $eq: estado } } }] : []),
       {
         $project: {
           createdAt: {
@@ -379,13 +378,25 @@ const obtenerCuidadoresConReservasPorEstado = async (filtros) => {
     ]);
 
     // Obtener estadísticas
-    const cuidadoresPendientes = await Usuario.countDocuments({rol: "Cuidador Pendiente"});
+    const cuidadoresPendientes = await Usuario.countDocuments({
+      rol: "Cuidador Pendiente",
+    });
     const cuidadoresHabilitados = await Usuario.countDocuments({
       rol: "Cuidador Habilitado",
     });
-    const cuidadoresNoHabilitados = await Usuario.countDocuments({ rol: "Cuidador No Habilitado" });
+    const cuidadoresNoHabilitados = await Usuario.countDocuments({
+      rol: "Cuidador No Habilitado",
+    });
 
-    const totalCuidadores = await Usuario.countDocuments({ rol:{$in: ["Cuidador Habilitado" ,"Cuidador No Habilitado" ,   "Cuidador Pendiente"]}});
+    const totalCuidadores = await Usuario.countDocuments({
+      rol: {
+        $in: [
+          "Cuidador Habilitado",
+          "Cuidador No Habilitado",
+          "Cuidador Pendiente",
+        ],
+      },
+    });
     const puntuacionPromedioHabilitados = await Usuario.aggregate([
       {
         $match: { rol: "Cuidador Habilitado", promedioPuntuacion: { $ne: 0 } },
@@ -406,17 +417,17 @@ const obtenerCuidadoresConReservasPorEstado = async (filtros) => {
 
     const cuidadoresFiltrados = cuidadores.length;
 
-  return {
-    cuidadores,
-    estadisticas: {
-      cuidadoresPendientes,
-      cuidadoresHabilitados,
-      cuidadoresNoHabilitados,
-      totalCuidadores,
-      cuidadoresFiltrados,
-      promedioPuntuacionHabilitados,
-    },
-  };
+    return {
+      cuidadores,
+      estadisticas: {
+        cuidadoresPendientes,
+        cuidadoresHabilitados,
+        cuidadoresNoHabilitados,
+        totalCuidadores,
+        cuidadoresFiltrados,
+        promedioPuntuacionHabilitados,
+      },
+    };
   } catch (error) {
     throw new Error(error.message);
   }
@@ -447,59 +458,37 @@ const getReservas = async (filtros) => {
 
     const matchStage = {};
 
-
-    const convertToDate = (dateStr) => {
-      return moment(dateStr, "DD-MM-YYYY").toDate();
+    const convertToUTCDate = (dateStr, endOfDay = false) => {
+      return endOfDay
+        ? moment.utc(dateStr, "YYYY-MM-DD").endOf("day").toDate()
+        : moment.utc(dateStr, "YYYY-MM-DD").startOf("day").toDate();
     };
+
     if (fechaInicio && fechaFin) {
-      const startDate = convertToDate(fechaInicio);
-      const endDate = convertToDate(fechaFin);
+      const startDate = convertToUTCDate(fechaInicio);
+      const endDate = convertToUTCDate(fechaFin, true);
       if (startDate > endDate) {
-        throw new Error(
-          "La fechaInicio debe ser menor o igual a la fechafin."
-        );
+        throw new Error("La fechaInicio debe ser menor o igual a la fechaFin.");
       }
-    }
-
-        if (fechaInicio && fechaFin) {
-      const startDate = convertToDate(fechaInicio);
-      const endDate = convertToDate(fechaFin);
-      if (startDate > endDate) {
-        throw new Error("La fecha de inicio debe ser menor o igual a la fecha de fin.");
-      }
-    }
-
-    if (fechaInicio ) {
-      const startDate = convertToDate(fechaInicio);
       matchStage.fechaInicio = { $gte: startDate };
+      matchStage.fechaFin = { $lte: endDate };
+    } else if (fechaInicio) {
+      const startDate = convertToUTCDate(fechaInicio);
+      matchStage.fechaInicio = { $gte: startDate };
+    } else if (fechaFin) {
+      const endDate = convertToUTCDate(fechaFin, true);
+      matchStage.fechaFin = { $lte: endDate };
     }
 
-    if (fechaFin) {
-      const endDate = convertToDate(fechaFin);
-      if (matchStage.fechaInicio) {
-        const startDate = convertToDate(fechaInicio);
-        matchStage.fechaInicio = { $gte: startDate };
-        matchStage.fechaFin = { $lte: endDate };
-      } else {
-        matchStage.fechaFin = { $lte: endDate };
+    if (estado) {
+      const estadoEncontrado = await Estado.findOne({ estado })
+        .select("_id")
+        .lean();
+      if (!estadoEncontrado) {
+        throw new Error("Estado no válido");
       }
+      matchStage["estado.estado"] = estado;
     }
-
-      if (estado) {
-        const estadoEncontrado = await Estado.findOne({ estado })
-          .select("_id")
-          .lean();
-        if (!estadoEncontrado) {
-          throw new Error("Estado no válido");
-        }
-        matchStage["estado.estado"]= estado;
-      }
-
-
-    console.log("MatchStage:", matchStage);
-    console.log("estado:", estado);
-    console.log("match estado", matchStage.estado);
-    console.log("estadoPendiente", estadoPendiente._id);
 
     const reservas = await Reserva.aggregate([
       {
@@ -537,13 +526,48 @@ const getReservas = async (filtros) => {
       { $unwind: { path: "$estado", preserveNullAndEmptyArrays: true } },
       {
         $lookup: {
+          from: "turnos",
+          let: { reservaId: { $toString: "$_id" } },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: [{ $toString: "$reserva" }, "$$reservaId"] },
+              },
+            },
+            {
+              $project: {
+                turno: { $substr: ["$fechaHoraInicio", 11, 5] },
+              },
+            },
+            { $limit: 1 },
+          ],
+          as: "turno",
+        },
+      },
+      {
+        $addFields: {
+          turno: { $ifNull: [{ $arrayElemAt: ["$turno.turno", 0] }, "--"] },
+        },
+      },
+      {
+        $lookup: {
           from: "resenias",
-          localField: "_id",
-          foreignField: "reserva",
+          let: { reservaId: { $toString: "$_id" } },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: [{ $toString: "$reserva" }, "$$reservaId"] },
+              },
+            },
+          ],
           as: "resenia",
         },
       },
-      { $unwind: { path: "$resenia", preserveNullAndEmptyArrays: true } },
+      {
+        $addFields: {
+          resenia: { $arrayElemAt: ["$resenia", 0] },
+        },
+      },
       {
         $addFields: {
           precioReserva: {
@@ -575,18 +599,35 @@ const getReservas = async (filtros) => {
       },
       {
         $project: {
+          fechaInicio: 1,
+          fechaFin: 1,
+          estado: "$estado.estado",
+          cliente: "$clienteNombreCompleto",
+          cuidador: "$cuidadorNombreCompleto",
+          contadorTurnos: 1,
+          precioReserva: 1,
+          puntuacion: { $ifNull: ["$puntuacion", "--"] },
+          turno: 1,
+        },
+      },
+      {
+        $sort: { fechaInicio: -1 }, // Ordenar por fechaInicio de más nuevas a más antiguas
+      },
+      {
+        $project: {
           fechaInicio: {
             $dateToString: { format: "%d-%m-%Y", date: "$fechaInicio" },
           },
           fechaFin: {
             $dateToString: { format: "%d-%m-%Y", date: "$fechaFin" },
           },
-          estado: "$estado.estado",
-          cliente: "$clienteNombreCompleto",
-          cuidador: "$cuidadorNombreCompleto",
+          estado: 1,
+          cliente: 1,
+          cuidador: 1,
           contadorTurnos: 1,
           precioReserva: 1,
           puntuacion: 1,
+          turno: 1,
         },
       },
     ]);
@@ -641,11 +682,11 @@ const getReservas = async (filtros) => {
         },
       },
     ]);
-
+    console.log(reservas);
     return {
       reservas,
       estadisticas: {
-        reservasFiltradas, // o total de registros mostrados en pantalla,
+        reservasFiltradas,
         totalReservas,
         reservasPendientes,
         reservasFinalizadas,
@@ -667,4 +708,5 @@ const getReservas = async (filtros) => {
 module.exports = {
   obtenerClientesConReservasPorEstado,
   obtenerCuidadoresConReservasPorEstado,
-  getReservas};
+  getReservas,
+};
