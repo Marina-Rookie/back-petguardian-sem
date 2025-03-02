@@ -1,8 +1,8 @@
 const express = require("express");
-const   router = express.Router();
+const router = express.Router();
 const usuarioController = require("../controllers/usuarioController.js");
 const authMiddleware = require("../services/authMiddlewareService.js");
-const upload = require('../utils/cloudinaryConfig.js').upload;
+const upload = require("../utils/cloudinaryConfig.js").upload;
 /**
  * @swagger
  * tags:
@@ -55,27 +55,27 @@ const upload = require('../utils/cloudinaryConfig.js').upload;
  *                   type: string
  *                   description: ID del usuario
  *                   example: 60d5f360a3f8b0928c8b4567
-*       '404':
-*         description: No existe ningún usuario registrado con el correo electrónico proporcionado
-*         content:
-*           application/json:
-*             schema:
-*               type: object
-*               properties:
-*                 message:
-*                   type: string
-*                   example: No existe ningun usuario registrado con ese email
-*       '400':
-*         description: Error en la solicitud, por ejemplo, si la contraseña no coincide
-*         content:
-*           application/json:
-*             schema:
-*               type: object
-*               properties:
-*                 message:
-*                   type: string
-*                   example: Error al iniciar sesión
-*/
+ *       '404':
+ *         description: No existe ningún usuario registrado con el correo electrónico proporcionado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: No existe ningun usuario registrado con ese email
+ *       '400':
+ *         description: Error en la solicitud, por ejemplo, si la contraseña no coincide
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Error al iniciar sesión
+ */
 router.post("/login", usuarioController.login);
 
 /**
@@ -381,7 +381,11 @@ router.put("/:id", authMiddleware.verifyToken, usuarioController.editUser);
  *                   type: string
  *                   example: Error al obtener los cuidadores habilitados
  */
-router.get( "/cuidadores-habilitados/", authMiddleware.verifyToken, usuarioController.getCuidadoresHabilitados);
+router.get(
+  "/cuidadores-habilitados/",
+  authMiddleware.verifyToken,
+  usuarioController.getCuidadoresHabilitados
+);
 
 /**
  * @swagger
@@ -435,7 +439,12 @@ router.get( "/cuidadores-habilitados/", authMiddleware.verifyToken, usuarioContr
  *                   type: string
  *                   example: Error al obtener los cuidadores pendientes
  */
-router.get( "/cuidadores-pendientes/", authMiddleware.verifyToken, authMiddleware.verifyAdmin, usuarioController.getCuidadoresPendientes);
+router.get(
+  "/cuidadores-pendientes/",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  usuarioController.getCuidadoresPendientes
+);
 
 /**
  * @swagger
@@ -569,7 +578,12 @@ router.get("/:id", authMiddleware.verifyToken, usuarioController.getOneUser);
  *                   type: string
  *                   example: Error al cargar la imagen
  */
-router.post("/upload/:id", authMiddleware.verifyToken, upload.single('file'), usuarioController.guardarImagenPerfil);
+router.post(
+  "/upload/:id",
+  authMiddleware.verifyToken,
+  upload.single("file"),
+  usuarioController.guardarImagenPerfil
+);
 
 /**
  * @swagger
@@ -607,7 +621,12 @@ router.post("/upload/:id", authMiddleware.verifyToken, upload.single('file'), us
  *                   type: string
  *                   example: Error al habilitar el cuidador
  */
-router.put("/habilitar-cuidador/:id", authMiddleware.verifyToken, authMiddleware.verifyAdmin, usuarioController.habilitarCuidador);
+router.put(
+  "/habilitar-cuidador/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  usuarioController.habilitarCuidador
+);
 
 /**
  * @swagger
@@ -645,6 +664,53 @@ router.put("/habilitar-cuidador/:id", authMiddleware.verifyToken, authMiddleware
  *                   type: string
  *                   example: Error al desaprobar el cuidador
  */
-router.put("/desaprobar-cuidador/:id", authMiddleware.verifyToken, authMiddleware.verifyAdmin, usuarioController.desaprobarCuidador);
+router.put(
+  "/desaprobar-cuidador/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  usuarioController.desaprobarCuidador
+);
+
+/**
+ * @swagger
+ * /api/usuarios/eliminar/{id}:
+ *   put:
+ *     summary: Marcar un usuario como eliminado
+ *     description: Permite actualizar el estado de un usuario para marcarlo como eliminado.
+ *     tags: [Usuario]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del usuario a marcar como eliminado
+ *     responses:
+ *       '200':
+ *         description: Usuario marcado como eliminado con éxito
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Usuario marcado como eliminado con éxito
+ *       '400':
+ *         description: Error en la solicitud
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Error al marcar el usuario como eliminado
+ */
+router.put(
+  "/eliminar/:id",
+  authMiddleware.verifyToken,
+  usuarioController.marcarUsuarioComoEliminado
+);
 
 module.exports = router;
