@@ -14,9 +14,19 @@ connection.conectarDB();
 const app = express();
 app.use(express.json());
 
-// Enable CORS for specific origins
+// Enable CORS for multiple origins
+const allowedOrigins = [
+  "http://localhost:4200",
+  "https://frontpetguardiansem.vercel.app",
+];
 const corsOptions = {
-  origin: "http://localhost:4200", // Replace with your frontend URL
+  origin: function (origin, callback) {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
