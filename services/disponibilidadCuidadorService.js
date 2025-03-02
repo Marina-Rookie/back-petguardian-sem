@@ -67,7 +67,6 @@ const crearOActualizarDisponibilidad = async (fecha, horarios, idCuidador) => {
   let result = null;
   if (horarios.length > 0) {
     result = await DisponibilidadCuidador.create(nuevaDisponibilidad);
-    console.log("Nueva disponibilidad creada:", result);
   } else {
     console.log("Horarios está vacío, no se crea una nueva disponibilidad.");
   }

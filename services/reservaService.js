@@ -110,7 +110,6 @@ const getReservasCuidadorEnRango = async (
       estado: { $in: ["Aprobada", "Pendiente"] },
     });
     const estadoIds = estados.map((estado) => estado._id);
-    console.log("Estado IDs:", estadoIds);
 
     const reservas = await Reserva.find({
       cuidador: idCuidador,

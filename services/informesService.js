@@ -7,7 +7,6 @@ const Estado = require("../models/Estado.js");
 const obtenerClientesConReservasPorEstado = async (filtros) => {
   try {
     const { nombre, apellido, email, reservasMin, reservasMax } = filtros;
-console.log(filtros);
     const matchStage = { rol: "Cliente" };
 
     if (nombre) matchStage.nombre = { $regex: nombre, $options: "i" };
@@ -682,7 +681,6 @@ const getReservas = async (filtros) => {
         },
       },
     ]);
-    console.log(reservas);
     return {
       reservas,
       estadisticas: {
