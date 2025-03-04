@@ -8,8 +8,14 @@ const reservaService = require("../services/reservaService");
 const createReserva = async (req, res) => {
   try {
     const clienteId = req.userId;
-    const { fechaInicio, fechaFin, comentario, cuidador, mascotas, horaTurno } =
-      req.body;
+    const {
+      fechaInicio,
+      fechaFin,
+      comentario,
+      cuidador,
+      mascotas,
+      diasReserva,
+    } = req.body;
     const newReserva = await reservaService.createReserva({
       fechaInicio,
       fechaFin,
@@ -17,7 +23,7 @@ const createReserva = async (req, res) => {
       clienteId,
       cuidador,
       mascotas,
-      horaTurno,
+      diasReserva,
     });
     res.status(201).json(newReserva);
   } catch (error) {
@@ -32,12 +38,10 @@ const deleteReserva = async (req, res) => {
     const reserva = await Reserva.findById(idReserva);
     const estado = await Estado.findOne({ estado: "Pendiente" });
     if (reserva.estado != estado._id) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "No se puede eliminar una reserva que no esté en estado Pendiente",
-        });
+      return res.status(400).json({
+        message:
+          "No se puede eliminar una reserva que no esté en estado Pendiente",
+      });
     }
     const result = await Reserva.deleteOne({ _id: idReserva });
     res.status(200).json(result);
@@ -49,7 +53,8 @@ const deleteReserva = async (req, res) => {
 const editReserva = async (req, res) => {
   try {
     const idReserva = req.params.id;
-    const { tarifaTurno, comentario, mascotas, fechaInicio, fechaFin} = req.body;
+    const { tarifaTurno, comentario, mascotas, fechaInicio, fechaFin } =
+      req.body;
     const result = await Reserva.updateOne(
       { _id: idReserva },
       { tarifaTurno, comentario, mascotas, fechaInicio, fechaFin }
@@ -76,16 +81,16 @@ const getReservasPorCliente = async (req, res) => {
         if (turnos.length > 0) {
           horaTurno = turnos[0].fechaHoraInicio
             .toISOString()
-            .split("T")[1].substring(0, 5);
+            .split("T")[1]
+            .substring(0, 5);
         }
-        return { ...reserva.toObject(), horaTurno};
+        return { ...reserva.toObject(), horaTurno };
       })
     );
     res.status(200).json(reservasConTurnos);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
-    
 };
 // para obtener las reservas de un cuidador, para su gestión de reservas
 const getReservasPorCuidador = async (req, res) => {
@@ -108,7 +113,7 @@ const getReservasPorCuidador = async (req, res) => {
         }
         return { ...reserva.toObject(), horaTurno };
       })
-    );    
+    );
     res.status(200).json(reservasConTurnos);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -162,7 +167,7 @@ const aprobarReserva = async (req, res) => {
     console.log(error.message);
     res.status(400).json({ message: error.message });
   }
-}
+};
 
 const rechazarReserva = async (req, res) => {
   try {
@@ -172,7 +177,7 @@ const rechazarReserva = async (req, res) => {
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
-}
+};
 const anularReserva = async (req, res) => {
   try {
     const reserva = await reservaService.anularReserva(req.params.idReserva);
@@ -193,5 +198,5 @@ module.exports = {
   cancelarReserva,
   aprobarReserva,
   rechazarReserva,
-  anularReserva
+  anularReserva,
 };

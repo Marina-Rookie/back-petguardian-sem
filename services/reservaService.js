@@ -6,12 +6,11 @@ const Estado = require("../models/Estado.js");
 const Resenia = require("../models/Resenia.js");
 const mongoose = require("mongoose");
 const turnoService = require("./turnoService");
-const {sendEmailState} = require('./emailService.js');
-
+const { sendEmailState } = require("./emailService.js");
 
 // createReserva: Crea unna reserva y sus turnos asociados
-  //no valida los turnos, eso se valida en la función getDisponibilidadCuidador de turnoService, el cliente seleccionaría directamente de ese array de horas disponibles
-  // Las reservas son con días consecutivos, se crea un turno de una hora para cada día al mimos horario. 
+//no valida los turnos, eso se valida en la función getDisponibilidadCuidador de turnoService, el cliente seleccionaría directamente de ese array de horas disponibles
+// Las reservas son con días consecutivos, se crea un turno de una hora para cada día al mimos horario.
 const createReserva = async ({
   fechaInicio,
   fechaFin,
@@ -19,7 +18,7 @@ const createReserva = async ({
   clienteId,
   cuidador,
   mascotas,
-  horaTurno,
+  diasReserva,
 }) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -33,14 +32,8 @@ const createReserva = async ({
       throw new Error("El cuidador no está habilitado");
     }
     const tarifaTurno = cuidadorData.tarifaHora;
-const startDate = moment
-  .utc(fechaInicio, "YYYY-MM-DD")
-  .set({ hour: 10, minute: 0, second: 0, millisecond: 0 })
-  .toDate();
-const endDate = moment
-  .utc(fechaFin, "YYYY-MM-DD")
-  .set({ hour: 10, minute: 0, second: 0, millisecond: 0 })
-  .toDate();
+    const startDate = moment.utc(fechaInicio, "YYYY-MM-DD").toDate();
+    const endDate = moment.utc(fechaFin, "YYYY-MM-DD").toDate();
     const newReserva = new Reserva({
       fechaInicio: startDate,
       fechaFin: endDate,
@@ -54,40 +47,28 @@ const endDate = moment
 
     const savedReserva = await newReserva.save({ session });
 
-
-
-    const days = Math.ceil((endDate - startDate + 1000 * 60 * 60 * 24) / (1000 * 60 * 60 * 24));
-
-    // Crear turnos para cada día
-for (let i = 0; i < days; i++) {
-  const turnoDate = moment.utc(startDate)
-    .add(i, "days")
-    .set({
-      hour: parseInt(horaTurno),
-      minute: 0,
-      second: 0,
-      millisecond: 0,
-    })
-    .toDate();
-  // Crear un nuevo turno
-  const newTurno = new Turno({
-    fechaHoraInicio: turnoDate,
-    reserva: savedReserva._id,
-  });
-  await newTurno.save({ session });
-}
-
-    // Actualizar el contador de turnos en la reserva
-    const updatedReserva = await Reserva.findByIdAndUpdate(
-      savedReserva._id,
-      { $inc: { contadorTurnos: days } },
-      { new: true, session }
-    );
+    // Crear turnos para cada día en diasReserva
+    for (const dia of diasReserva) {
+      const turnoDate = moment
+        .utc(dia.fecha, "YYYY-MM-DD")
+        .set({
+          hour: parseInt(dia.horaTurno),
+          minute: 0,
+          second: 0,
+          millisecond: 0,
+        })
+        .toDate();
+      const newTurno = new Turno({
+        fechaHoraInicio: turnoDate,
+        reserva: savedReserva._id,
+      });
+      await newTurno.save({ session });
+    }
 
     await session.commitTransaction();
     session.endSession();
 
-    return updatedReserva;
+    return savedReserva;
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
@@ -95,10 +76,8 @@ for (let i = 0; i < days; i++) {
   }
 };
 
-
-
 // Función para obtener las reservas de un cuidador en un rango de fechas que tengan estado Aprobada o Pendiente, se utiliza en la función getDisponibilidadCuidador de turnoService
-  // devuelve las reservas del cuidador en ese rango de fechas con estado Aprobada o Pendiente.
+// devuelve las reservas del cuidador en ese rango de fechas con estado Aprobada o Pendiente.
 const getReservasCuidadorEnRango = async (
   idCuidador,
   fechaInicio,
@@ -165,9 +144,9 @@ const aprobarReserva = async (idReserva) => {
     await sendEmailState(reserva);
     return reserva;
   } catch (error) {
-  throw new Error(error.message);
+    throw new Error(error.message);
   }
-}
+};
 
 const rechazarReserva = async (idReserva) => {
   try {
@@ -261,5 +240,5 @@ module.exports = {
   aprobarReserva,
   rechazarReserva,
   anularReserva,
-  cancelarReserva
+  cancelarReserva,
 };
