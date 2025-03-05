@@ -187,6 +187,32 @@ const anularReserva = async (req, res) => {
   }
 };
 
+const getTurnosPorReserva = async (req, res) => {
+  try {
+    const idReserva = req.params.idReserva;
+    const turnos = await Turno.find({ reserva: idReserva });
+
+    const turnosFormatted = turnos.map((turno) => {
+      const fecha = turno.fechaHoraInicio
+        .toISOString()
+        .split("T")[0]
+        .split("-")
+        .reverse()
+        .join("-");
+      const hora = turno.fechaHoraInicio
+        .toISOString()
+        .split("T")[1]
+        .substring(0, 5);
+      return { fecha, hora };
+    });
+    console.log(turnosFormatted);
+
+    res.status(200).json(turnosFormatted);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 module.exports = {
   createReserva,
   deleteReserva,
@@ -199,4 +225,5 @@ module.exports = {
   aprobarReserva,
   rechazarReserva,
   anularReserva,
+  getTurnosPorReserva,
 };

@@ -1,6 +1,6 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const reservaController = require('../controllers/reservaController.js');
+const reservaController = require("../controllers/reservaController.js");
 const authMiddleware = require("../services/authMiddlewareService.js");
 /**
  * @swagger
@@ -95,7 +95,12 @@ const authMiddleware = require("../services/authMiddlewareService.js");
  *                   type: string
  *                   example: Error al crear la reserva
  */
-router.post('/',authMiddleware.verifyToken, authMiddleware.verifyCliente, reservaController.createReserva);
+router.post(
+  "/",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyCliente,
+  reservaController.createReserva
+);
 
 /**
  * @swagger
@@ -133,7 +138,12 @@ router.post('/',authMiddleware.verifyToken, authMiddleware.verifyCliente, reserv
  *                   type: string
  *                   example: No se puede eliminar una reserva que no esté en estado Pendiente
  */
-router.delete('/:id',authMiddleware.verifyToken, authMiddleware.verifyAdmin, reservaController.deleteReserva); 
+router.delete(
+  "/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  reservaController.deleteReserva
+);
 
 /**
  * @swagger
@@ -202,7 +212,7 @@ router.delete('/:id',authMiddleware.verifyToken, authMiddleware.verifyAdmin, res
  *                   type: string
  *                   example: Error al editar la reserva
  */
-router.put('/:id',authMiddleware.verifyToken, reservaController.editReserva);
+router.put("/:id", authMiddleware.verifyToken, reservaController.editReserva);
 
 /**
  * @swagger
@@ -291,7 +301,12 @@ router.put('/:id',authMiddleware.verifyToken, reservaController.editReserva);
  *                   type: string
  *                   example: Error al obtener las reservas
  */
-router.get('/reservasPorCliente/:id',authMiddleware.verifyToken, authMiddleware.verifyCliente, reservaController.getReservasPorCliente);
+router.get(
+  "/reservasPorCliente/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyCliente,
+  reservaController.getReservasPorCliente
+);
 
 /**
  * @swagger
@@ -380,9 +395,59 @@ router.get('/reservasPorCliente/:id',authMiddleware.verifyToken, authMiddleware.
  *                   type: string
  *                   example: Error al obtener las reservas
  */
-router.get('/reservasPorCuidador/:id',authMiddleware.verifyToken, authMiddleware.verifyCuidadorHabilitado, reservaController.getReservasPorCuidador);
+router.get(
+  "/reservasPorCuidador/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyCuidadorHabilitado,
+  reservaController.getReservasPorCuidador
+);
 
-
+/**
+ * @swagger
+ * /api/reservas/turnosPorReserva/{idReserva}:
+ *   get:
+ *     summary: Obtener turnos por reserva
+ *     description: Permite obtener una lista de turnos de una reserva específica.
+ *     tags: [Reservas]
+ *     parameters:
+ *       - in: path
+ *         name: idReserva
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de la reserva
+ *     responses:
+ *       '200':
+ *         description: Lista de turnos obtenida con éxito
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   fecha:
+ *                     type: string
+ *                     example: "15-10-2023"
+ *                   hora:
+ *                     type: string
+ *                     example: "08:00"
+ *       '400':
+ *         description: Error en la solicitud
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Error al obtener los turnos
+ */
+router.get(
+  "/turnosPorReserva/:idReserva",
+  authMiddleware.verifyToken,
+  reservaController.getTurnosPorReserva
+);
 
 /**
  * @swagger
@@ -420,7 +485,12 @@ router.get('/reservasPorCuidador/:id',authMiddleware.verifyToken, authMiddleware
  *                   type: string
  *                   example: Error al cancelar la reserva
  */
-router.put('/cancelar/:idReserva', authMiddleware.verifyToken, authMiddleware.verifyCliente, reservaController.cancelarReserva);
+router.put(
+  "/cancelar/:idReserva",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyCliente,
+  reservaController.cancelarReserva
+);
 
 /**
  * @swagger
@@ -458,7 +528,12 @@ router.put('/cancelar/:idReserva', authMiddleware.verifyToken, authMiddleware.ve
  *                   type: string
  *                   example: Error al aprobar la reserva
  */
-router.put('/aprobar/:idReserva', authMiddleware.verifyToken, authMiddleware.verifyCuidadorHabilitado, reservaController.aprobarReserva);
+router.put(
+  "/aprobar/:idReserva",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyCuidadorHabilitado,
+  reservaController.aprobarReserva
+);
 
 /**
  * @swagger
@@ -496,7 +571,12 @@ router.put('/aprobar/:idReserva', authMiddleware.verifyToken, authMiddleware.ver
  *                   type: string
  *                   example: Error al rechazar la reserva
  */
-router.put('/rechazar/:idReserva', authMiddleware.verifyToken, authMiddleware.verifyCuidadorHabilitado, reservaController.rechazarReserva);
+router.put(
+  "/rechazar/:idReserva",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyCuidadorHabilitado,
+  reservaController.rechazarReserva
+);
 
 /**
  * @swagger
@@ -534,7 +614,12 @@ router.put('/rechazar/:idReserva', authMiddleware.verifyToken, authMiddleware.ve
  *                   type: string
  *                   example: Error al anular la reserva
  */
-router.put('/anular/:idReserva', authMiddleware.verifyToken, authMiddleware.verifyCuidadorHabilitado, reservaController.anularReserva);
+router.put(
+  "/anular/:idReserva",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyCuidadorHabilitado,
+  reservaController.anularReserva
+);
 
 /**
  * @swagger
