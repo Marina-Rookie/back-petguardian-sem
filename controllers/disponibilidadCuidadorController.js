@@ -1,5 +1,5 @@
-const Disponibilidad = require('../models/DisponibilidadCuidador.js');
-const service = require('../services/disponibilidadCuidadorService.js');
+const Disponibilidad = require("../models/DisponibilidadCuidador.js");
+const service = require("../services/disponibilidadCuidadorService.js");
 
 const getDisponibilidadesPorCuidador = async (req, res) => {
   try {
@@ -30,22 +30,14 @@ const updateDisponibilidad = async (req, res) => {
   }
 };
 
-
-
 const deleteDisponibilidad = async (req, res) => {
   try {
-    const idCuidador = req.userId;
-    const fecha = req.body.fecha;
-    const result = await Disponibilidad.deleteOne({
-      cuidador: idCuidador,
-      fecha: fecha,
-    });
-    if (result.deletedCount === 0) {
-      return res
-        .status(404)
-        .json({ message: "No se encontraron disponibilidades para eliminar" });
+    const idDisponibilidad = req.params.id;
+    const result = await Disponibilidad.findByIdAndDelete(idDisponibilidad);
+    if (!result) {
+      return res.status(404).json({ message: "Disponibilidad no encontrada" });
     }
-    res.status(200).json(result);
+    res.status(200).json({ message: "Disponibilidad eliminada con éxito" });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -82,6 +74,6 @@ module.exports = {
   getDisponibilidadesPorCuidador,
   createDisponibilidad,
   deleteDisponibilidad,
-createOrUpdateDisponibilidad,
-updateDisponibilidad
+  createOrUpdateDisponibilidad,
+  updateDisponibilidad,
 };

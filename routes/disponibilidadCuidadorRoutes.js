@@ -1,6 +1,6 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const disponibilidadCuidadorController = require('../controllers/disponibilidadCuidadorController.js');
+const disponibilidadCuidadorController = require("../controllers/disponibilidadCuidadorController.js");
 const authMiddleware = require("../services/authMiddlewareService.js");
 
 /**
@@ -47,7 +47,11 @@ const authMiddleware = require("../services/authMiddlewareService.js");
  *                   type: string
  *                   example: Error al obtener disponibilidades
  */
-router.get("/", authMiddleware.verifyToken, disponibilidadCuidadorController.getDisponibilidadesPorCuidador);
+router.get(
+  "/",
+  authMiddleware.verifyToken,
+  disponibilidadCuidadorController.getDisponibilidadesPorCuidador
+);
 
 /**
  * @swagger
@@ -105,7 +109,12 @@ router.get("/", authMiddleware.verifyToken, disponibilidadCuidadorController.get
  *                   type: string
  *                   example: Error al crear disponibilidad
  */
-router.post('/', authMiddleware.verifyToken, authMiddleware.verifyCuidadorHabilitado, disponibilidadCuidadorController.createDisponibilidad);
+router.post(
+  "/",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyCuidadorHabilitado,
+  disponibilidadCuidadorController.createDisponibilidad
+);
 
 /**
  * @swagger
@@ -163,27 +172,27 @@ router.post('/', authMiddleware.verifyToken, authMiddleware.verifyCuidadorHabili
  *                   type: string
  *                   example: Error al crear o actualizar disponibilidad
  */
-router.post("/update", authMiddleware.verifyToken, authMiddleware.verifyCuidadorHabilitado, disponibilidadCuidadorController.createOrUpdateDisponibilidad);
+router.post(
+  "/update",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyCuidadorHabilitado,
+  disponibilidadCuidadorController.createOrUpdateDisponibilidad
+);
 
 /**
  * @swagger
- * /api/disponibilidadCuidador:
+ * /api/disponibilidadCuidador/{id}:
  *   delete:
  *     summary: Eliminar una disponibilidad
- *     description: Permite eliminar una disponibilidad para un cuidador.
+ *     description: Permite eliminar una disponibilidad por su ID.
  *     tags: [Disponibilidad Cuidador]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               fecha:
- *                 type: string
- *                 format: date
- *                 description: Fecha de la disponibilidad a eliminar
- *                 example: 2023-10-15
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de la disponibilidad a eliminar
  *     responses:
  *       '200':
  *         description: Disponibilidad eliminada con éxito
@@ -196,7 +205,7 @@ router.post("/update", authMiddleware.verifyToken, authMiddleware.verifyCuidador
  *                   type: string
  *                   example: Disponibilidad eliminada con éxito
  *       '404':
- *         description: No se encontraron disponibilidades para eliminar
+ *         description: Disponibilidad no encontrada
  *         content:
  *           application/json:
  *             schema:
@@ -204,7 +213,7 @@ router.post("/update", authMiddleware.verifyToken, authMiddleware.verifyCuidador
  *               properties:
  *                 message:
  *                   type: string
- *                   example: No se encontraron disponibilidades para eliminar
+ *                   example: Disponibilidad no encontrada
  *       '400':
  *         description: Error en la solicitud
  *         content:
@@ -216,7 +225,12 @@ router.post("/update", authMiddleware.verifyToken, authMiddleware.verifyCuidador
  *                   type: string
  *                   example: Error al eliminar disponibilidad
  */
-router.delete("/", authMiddleware.verifyToken, authMiddleware.verifyCuidadorHabilitado, disponibilidadCuidadorController.deleteDisponibilidad);    
+router.delete(
+  "/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyCuidadorHabilitado,
+  disponibilidadCuidadorController.deleteDisponibilidad
+);
 
 /**
  * @swagger
@@ -282,6 +296,11 @@ router.delete("/", authMiddleware.verifyToken, authMiddleware.verifyCuidadorHabi
  *                   type: string
  *                   example: Error al actualizar disponibilidad
  */
-router.put("/:id", authMiddleware.verifyToken,  authMiddleware.verifyCuidadorHabilitado,  disponibilidadCuidadorController.updateDisponibilidad);
+router.put(
+  "/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyCuidadorHabilitado,
+  disponibilidadCuidadorController.updateDisponibilidad
+);
 
 module.exports = router;
