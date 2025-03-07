@@ -1,6 +1,6 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const tipoMascotaController = require('../controllers/tipoMascotaController.js');
+const tipoMascotaController = require("../controllers/tipoMascotaController.js");
 const authMiddleware = require("../services/authMiddlewareService.js");
 
 /**
@@ -44,7 +44,11 @@ const authMiddleware = require("../services/authMiddlewareService.js");
  *                   type: string
  *                   example: Error al obtener los tipos de mascota
  */
-router.get("/", authMiddleware.verifyToken, tipoMascotaController.getTiposMascota);
+router.get(
+  "/",
+  authMiddleware.verifyToken,
+  tipoMascotaController.getTiposMascota
+);
 
 /**
  * @swagger
@@ -89,7 +93,12 @@ router.get("/", authMiddleware.verifyToken, tipoMascotaController.getTiposMascot
  *                   type: string
  *                   example: Error al crear el tipo de mascota
  */
-router.post("/", authMiddleware.verifyToken, authMiddleware.verifyAdmin, tipoMascotaController.createTipoMascota);
+router.post(
+  "/",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  tipoMascotaController.createTipoMascota
+);
 
 /**
  * @swagger
@@ -137,7 +146,12 @@ router.post("/", authMiddleware.verifyToken, authMiddleware.verifyAdmin, tipoMas
  *                   type: string
  *                   example: Error al eliminar el tipo de mascota
  */
-router.delete("/:id", authMiddleware.verifyToken, authMiddleware.verifyAdmin, tipoMascotaController.deleteTipoMascota);
+router.delete(
+  "/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  tipoMascotaController.deleteTipoMascota
+);
 
 /**
  * @swagger
@@ -186,6 +200,66 @@ router.delete("/:id", authMiddleware.verifyToken, authMiddleware.verifyAdmin, ti
  *                   type: string
  *                   example: Error al editar el tipo de mascota
  */
-router.put("/:id", authMiddleware.verifyToken, authMiddleware.verifyAdmin, tipoMascotaController.editTipoMascota);
+router.put(
+  "/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  tipoMascotaController.editTipoMascota
+);
+
+/**
+ * @swagger
+ * /api/tiposMascota/mascota/{id}:
+ *   get:
+ *     summary: Obtener el tipo de mascota por ID de la mascota
+ *     description: Permite obtener el tipo de mascota por el ID de la mascota.
+ *     tags: [Tipo Mascota]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de la mascota
+ *     responses:
+ *       '200':
+ *         description: Tipo de mascota obtenido con éxito
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                   example: 60d5f360a3f8b0928c8b4567
+ *                 nombre:
+ *                   type: string
+ *                   example: Perro
+ *       '404':
+ *         description: Mascota no encontrada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Mascota no encontrada
+ *       '400':
+ *         description: Error en la solicitud
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Error al obtener el tipo de mascota
+ */
+router.get(
+  "/mascota/:id",
+  authMiddleware.verifyToken,
+  tipoMascotaController.getTipoMascotaById
+);
 
 module.exports = router;
