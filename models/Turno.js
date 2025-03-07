@@ -10,6 +10,10 @@ const TurnoSchema = new mongoose.Schema({
     ref: "Reserva",
     required: true,
   },
+  eliminado: {
+    type: Boolean,
+    default: false,
+  },
 });
 TurnoSchema.pre("save", async function (next) {
   try {

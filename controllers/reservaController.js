@@ -205,7 +205,6 @@ const getTurnosPorReserva = async (req, res) => {
         .substring(0, 5);
       return { fecha, hora };
     });
-    console.log(turnosFormatted);
 
     res.status(200).json(turnosFormatted);
   } catch (error) {

@@ -160,7 +160,10 @@ const rechazarReserva = async (idReserva) => {
       throw new Error("Reserva no encontrada");
     }
 
-    await turnoService.deleteTurnosByReserva(idReserva);
+    await Turno.updateMany(
+      { reserva: idReserva },
+      { $set: { eliminado: true } }
+    );
 
     reserva.estado = estadoNoAprobada._id;
     await reserva.save();
@@ -190,7 +193,11 @@ const anularReserva = async (idReserva) => {
       throw new Error("Solo se pueden anular reservas con estado 'Aprobada'");
     }
 
-    await turnoService.deleteTurnosByReserva(idReserva);
+    await Turno.updateMany(
+      { reserva: idReserva },
+      { $set: { eliminado: true } }
+    );
+
     reserva.estado = estadoAnulada._id;
     await reserva.save();
     await sendEmailState(reserva);
@@ -224,7 +231,11 @@ const cancelarReserva = async (idReserva) => {
       );
     }
 
-    await turnoService.deleteTurnosByReserva(idReserva);
+    await Turno.updateMany(
+      { reserva: idReserva },
+      { $set: { eliminado: true } }
+    );
+
     reserva.estado = estadoCancelada._id;
     await reserva.save();
     await sendEmailState(reserva);

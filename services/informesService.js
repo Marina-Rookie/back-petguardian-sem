@@ -655,6 +655,11 @@ const getReservas = async (filtros) => {
 
     const totalIngresos = await Reserva.aggregate([
       {
+        $match: {
+          estado: estadoFinalizada._id,
+        },
+      },
+      {
         $lookup: {
           from: "usuarios",
           localField: "cuidador",
