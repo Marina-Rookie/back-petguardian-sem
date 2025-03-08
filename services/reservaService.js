@@ -65,6 +65,11 @@ const createReserva = async ({
       await newTurno.save({ session });
     }
 
+    // Actualizar el contador de turnos en la reserva
+    await Reserva.findByIdAndUpdate(savedReserva._id, {
+      $inc: { contadorTurnos: diasReserva.length },
+    }, { session });
+
     await session.commitTransaction();
     session.endSession();
 
