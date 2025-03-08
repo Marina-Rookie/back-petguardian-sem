@@ -32,8 +32,8 @@ const createReserva = async ({
       throw new Error("El cuidador no está habilitado");
     }
     const tarifaTurno = cuidadorData.tarifaHora;
-    const startDate = moment.utc(fechaInicio, "YYYY-MM-DD").toDate();
-    const endDate = moment.utc(fechaFin, "YYYY-MM-DD").toDate();
+    const startDate = new Date(`${fechaInicio}T00:00:00.000Z`);
+    const endDate = new Date(`${fechaFin}T23:59:59.999Z`);
     const newReserva = new Reserva({
       fechaInicio: startDate,
       fechaFin: endDate,

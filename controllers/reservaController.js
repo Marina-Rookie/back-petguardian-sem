@@ -84,7 +84,9 @@ const getReservasPorCliente = async (req, res) => {
             .split("T")[1]
             .substring(0, 5);
         }
-        return { ...reserva.toObject(), horaTurno };
+        const fechaInicio = reserva.fechaInicio.toISOString().split("T")[0];
+        const fechaFin = reserva.fechaFin.toISOString().split("T")[0];
+        return { ...reserva.toObject(), horaTurno, fechaInicio, fechaFin };
       })
     );
     res.status(200).json(reservasConTurnos);
@@ -111,7 +113,9 @@ const getReservasPorCuidador = async (req, res) => {
             .split("T")[1]
             .substring(0, 5);
         }
-        return { ...reserva.toObject(), horaTurno };
+        const fechaInicio = reserva.fechaInicio.toISOString().split("T")[0];
+        const fechaFin = reserva.fechaFin.toISOString().split("T")[0];
+        return { ...reserva.toObject(), horaTurno, fechaInicio, fechaFin };
       })
     );
     res.status(200).json(reservasConTurnos);
