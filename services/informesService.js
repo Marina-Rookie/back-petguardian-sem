@@ -140,6 +140,26 @@ const obtenerClientesConReservasPorEstado = async (filtros) => {
     // Obtener estadísticas
     const totalClientes = await Usuario.countDocuments({ rol: "Cliente" });
     const clientesFiltrados = clientes.length;
+    const clientesSinReservas = await Usuario.aggregate([
+      { $match: { rol: "Cliente" } },
+      {
+        $lookup: {
+          from: "reservas",
+          localField: "_id",
+          foreignField: "cliente",
+          as: "reservas",
+        },
+      },
+      {
+        $addFields: {
+          reservasTotales: { $size: "$reservas" },
+        },
+      },
+      {
+        $match: { reservasTotales: { $eq: 0 } },
+      },
+      { $count: "count" },
+    ]);
     const clientes1a10 = await Usuario.aggregate([
       { $match: { rol: "Cliente" } },
       {
@@ -226,6 +246,9 @@ const obtenerClientesConReservasPorEstado = async (filtros) => {
       estadisticas: {
         totalClientes,
         clientesFiltrados,
+        clientesSinReservas: clientesSinReservas[0]
+          ? clientesSinReservas[0].count
+          : 0,
         clientes1a10: clientes1a10[0] ? clientes1a10[0].count : 0,
         clientes11a20: clientes11a20[0] ? clientes11a20[0].count : 0,
         clientes21a50: clientes21a50[0] ? clientes21a50[0].count : 0,
