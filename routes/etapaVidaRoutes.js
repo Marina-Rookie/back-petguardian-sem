@@ -1,6 +1,6 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const etapaVidaController = require('../controllers/etapaVidaController.js');
+const etapaVidaController = require("../controllers/etapaVidaController.js");
 const authMiddleware = require("../services/authMiddlewareService.js");
 
 /**
@@ -89,7 +89,12 @@ router.get("/", authMiddleware.verifyToken, etapaVidaController.getEtapasVida);
  *                   type: string
  *                   example: Error al crear la etapa de vida
  */
-router.post("/", authMiddleware.verifyToken, authMiddleware.verifyAdmin, etapaVidaController.createEtapaVida);
+router.post(
+  "/",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  etapaVidaController.createEtapaVida
+);
 
 /**
  * @swagger
@@ -137,7 +142,12 @@ router.post("/", authMiddleware.verifyToken, authMiddleware.verifyAdmin, etapaVi
  *                   type: string
  *                   example: Error al eliminar la etapa de vida
  */
-router.delete("/:id", authMiddleware.verifyToken, authMiddleware.verifyAdmin, etapaVidaController.deleteEtapaVida);
+router.delete(
+  "/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  etapaVidaController.deleteEtapaVida
+);
 
 /**
  * @swagger
@@ -196,6 +206,65 @@ router.delete("/:id", authMiddleware.verifyToken, authMiddleware.verifyAdmin, et
  *                   type: string
  *                   example: Error al editar la etapa de vida
  */
-router.put("/:id", authMiddleware.verifyToken, authMiddleware.verifyAdmin, etapaVidaController.editEtapaVida);
+router.put(
+  "/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  etapaVidaController.editEtapaVida
+);
+/**
+ * @swagger
+ * /api/etapasVida/mascota/{idMascota}:
+ *   get:
+ *     summary: Obtener la etapa de vida por ID de mascota
+ *     description: Permite obtener la etapa de vida asociada a una mascota específica.
+ *     tags: [Etapa de Vida]
+ *     parameters:
+ *       - in: path
+ *         name: idMascota
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de la mascota
+ *     responses:
+ *       '200':
+ *         description: Etapa de vida obtenida con éxito
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                   example: 60d5f360a3f8b0928c8b4567
+ *                 nombre:
+ *                   type: string
+ *                   example: Cachorro
+ *       '404':
+ *         description: Mascota no encontrada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Mascota no encontrada
+ *       '400':
+ *         description: Error en la solicitud
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Error al obtener la etapa de vida
+ */
+router.get(
+  "/mascota/:idMascota",
+  authMiddleware.verifyToken,
+  etapaVidaController.getEtapaVidaByMascotaId
+);
 
 module.exports = router;

@@ -98,25 +98,8 @@ const getReservasPorCliente = async (req, res) => {
 const getReservasPorCuidador = async (req, res) => {
   try {
     const idCuidador = req.params.id;
-    const reservas = await Reserva.find({ cuidador: idCuidador })
-      .populate("cliente", "nombre apellido telefono")
-      .populate("mascotas", "nombre")
-      .populate("estado", "estado")
-      .populate("resenia", "puntuacion comentario");
-    const reservasConTurnos = await Promise.all(
-      reservas.map(async (reserva) => {
-        const turnos = await Turno.find({ reserva: reserva._id });
-        let horaTurno = null;
-        if (turnos.length > 0) {
-          horaTurno = turnos[0].fechaHoraInicio
-            .toISOString()
-            .split("T")[1]
-            .substring(0, 5);
-        }
-        const fechaInicio = reserva.fechaInicio.toISOString().split("T")[0];
-        const fechaFin = reserva.fechaFin.toISOString().split("T")[0];
-        return { ...reserva.toObject(), horaTurno, fechaInicio, fechaFin };
-      })
+    const reservasConTurnos = await reservaService.getReservasPorCuidador(
+      idCuidador
     );
     res.status(200).json(reservasConTurnos);
   } catch (error) {

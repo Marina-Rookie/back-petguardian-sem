@@ -253,6 +253,47 @@ const cancelarReserva = async (idReserva) => {
     throw new Error(error.message);
   }
 };
+
+const getReservasPorCuidador = async (idCuidador) => {
+  try {
+    const reservas = await Reserva.find({ cuidador: idCuidador })
+      .populate("cliente", "nombre apellido telefono")
+      .populate({
+        path: "mascotas",
+        populate: [
+          { path: "etapaVida", select: "nombre" },
+          { path: "tipoMascota", select: "nombre" },
+        ],
+      })
+      .populate("mascotas", "nombre obsComida obsEnfermedades obsOtros")
+      .populate("estado", "estado")
+      .populate("resenia", "puntuacion comentario")
+      .lean();
+
+    const reservasConTurnos = await Promise.all(
+      reservas.map(async (reserva) => {
+        const turnos = await Turno.find({ reserva: reserva._id });
+        let horaTurno = null;
+        if (turnos.length > 0) {
+          horaTurno = turnos[0].fechaHoraInicio
+            .toISOString()
+            .split("T")[1]
+            .substring(0, 5);
+        }
+        const fechaInicio = reserva.fechaInicio.toISOString().split("T")[0];
+        const fechaFin = reserva.fechaFin.toISOString().split("T")[0];
+        return { ...reserva, horaTurno, fechaInicio, fechaFin };
+      })
+    );
+
+    return reservasConTurnos;
+  } catch (error) {
+    throw new Error(
+      "Error al obtener las reservas del cuidador: " + error.message
+    );
+  }
+};
+
 module.exports = {
   createReserva,
   getReservasCuidadorEnRango,
@@ -261,4 +302,5 @@ module.exports = {
   rechazarReserva,
   anularReserva,
   cancelarReserva,
+  getReservasPorCuidador, // Add this line
 };
