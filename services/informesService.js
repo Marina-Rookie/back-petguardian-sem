@@ -593,7 +593,10 @@ const getReservas = async (filtros) => {
       {
         $addFields: {
           precioReserva: {
-            $multiply: ["$cuidador.tarifaHora", "$contadorTurnos"],
+            $multiply: [
+              { $toDouble: "$cuidador.tarifaHora" },
+              { $toInt: "$contadorTurnos" },
+            ],
           },
           puntuacion: "$resenia.puntuacion",
           clienteNombreCompleto: {
@@ -617,6 +620,13 @@ const getReservas = async (filtros) => {
               { "cuidador.apellido": { $regex: nombre, $options: "i" } },
             ],
           }),
+        },
+      },
+      {
+        $match: {
+          cliente: { $exists: true, $ne: null },
+          cuidador: { $exists: true, $ne: null },
+          estado: { $exists: true, $ne: null },
         },
       },
       {
@@ -706,6 +716,13 @@ const getReservas = async (filtros) => {
         $group: {
           _id: null,
           promedioPuntuacion: { $avg: "$puntuacion" },
+        },
+      },
+      {
+        $project: {
+          promedioPuntuacion: {
+            $round: ["$promedioPuntuacion", 1], // Limitar a un decimal
+          },
         },
       },
     ]);
